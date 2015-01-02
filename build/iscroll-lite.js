@@ -324,8 +324,11 @@
             //当遇到表单元素则不阻止冒泡，而是弹出系统自带相应的输入控件
             preventDefaultException: { tagName: /^(INPUT|TEXTAREA|BUTTON|SELECT)$/ },
 
+            //硬件合成 通过GPU做图形渲染
             HWCompositing: true,
+            //使用transition
             useTransition: true,
+            //使用transform
             useTransform: true
         };
         //合并配置参数
@@ -349,7 +352,7 @@
         this.options.useTransform = utils.hasTransform && this.options.useTransform;
         /**
          * 是否支持事件穿透
-         * TODO 还不明用途
+         * 默认false，当你想保留原生垂直滚动但能够添加水平iscroll时候，设置为true，iscroll区域水平滑动时候的touch垂直移动，不会触发原生的垂直滑动
          * @type {string}
          */
         this.options.eventPassthrough = this.options.eventPassthrough === true ? 'vertical' : this.options.eventPassthrough;
@@ -361,6 +364,7 @@
         // If you want eventPassthrough I have to lock one of the axes
         /**
          * 判断滚动的方向 X or Y
+         * eventPassthrough可以传入具体名字(vertical/horizontal)，这里更好说明了eventPassthrough的作用，对于传入的值来阻止相应轴的滑动事件
          * @type {boolean}
          */
         this.options.scrollY = this.options.eventPassthrough == 'vertical' ? false : this.options.scrollY;
@@ -468,8 +472,9 @@
 
             var point = e.touches ? e.touches[0] : e,
                 pos;
-
+            // 事件类型
             this.initiated	= utils.eventType[e.type];
+            //是否移动的标志
             this.moved		= false;
             this.distX		= 0;
             this.distY		= 0;
@@ -512,7 +517,7 @@
          */
         _move: function (e) {
             /**
-             * TODO 这里做事件类型的判断是啥意思?
+             * 禁止 or 不存在此eventType 则返回
              */
             if ( !this.enabled || utils.eventType[e.type] !== this.initiated ) {
                 return;
@@ -595,10 +600,14 @@
             }
 
             /**
-             * TODO 干嘛的？
+             * -1 手势向左   1 手势向右
              * @type {number}
              */
             this.directionX = deltaX > 0 ? -1 : deltaX < 0 ? 1 : 0;
+            /**
+             * -1 手势向上   1 手势向下
+             * @type {number}
+             */
             this.directionY = deltaY > 0 ? -1 : deltaY < 0 ? 1 : 0;
             //第一次拖动时的回调
             if ( !this.moved ) {
